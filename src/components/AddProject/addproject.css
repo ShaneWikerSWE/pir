@@ -1,0 +1,61 @@
+.add-project {
+background-color: #7851a9;
+height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+}
+
+input[type="text"],
+input[type="number"] {
+width: 100%;
+padding: 10px;
+margin-bottom: 10px;
+font-size: 16px;
+}
+
+label {
+font-size: 16px;
+margin-bottom: 5px;
+}
+
+.add-project input[type="text"],
+.add-project input[type="number"],
+.add-project input[type="radio"] {
+width: 100%;
+}
+
+.pending {
+background-color: rgba(120, 81, 169, 0.7);
+}
+
+label[for="status"],
+label[for="stages"] {
+font-size: 20px;
+}
+
+button {
+background-color: black;
+color: white;
+padding: 10px 20px;
+border: none;
+border-radius: 5px;
+font-size: 16px;
+margin-top: 20px;
+}
+
+.radio-container {
+display: flex;
+flex-direction: column;
+margin-top: 20px;
+}
+
+.radio-container label {
+margin-bottom: 10px;
+}
+
+input[type="radio"] {
+display: block;
+margin-top: 10px;
+}
