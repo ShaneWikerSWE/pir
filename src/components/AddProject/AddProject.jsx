@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import "./addproject.css";
+import UserContext from "../../UserContext";
+import saveProject from '../../features/saveProject'
 
 function AddProject() {
 	const [clientName, setClientName] = useState("");
@@ -16,12 +18,14 @@ function AddProject() {
 		},
 	]);
 
+	const { userEmail } = useContext(UserContext);
+
 	const handleClientNameChange = (event) => {
 		setClientName(event.target.value);
 	};
 
 	const handleClientEmailChange = (event) => {
-		setClientName(event.target.value);
+		setClientEmail(event.target.value);
 	};
 
 	const handleAddStage = () => {
@@ -35,8 +39,8 @@ function AddProject() {
 		]);
 	};
 
-	const handleNewStage = () => {
-		setStageNames([...stageNames, '']);
+	const handleNewStage = (e) => {
+		setStages([...stages, { stageName: "", days: 0, hours: 0 }]);
 		setDays([...days, 0]);
 		setHours([...hours, 0]);
 	};
@@ -49,14 +53,16 @@ function AddProject() {
 
 	const handleDaysChange = (index, event) => {
 		const newStages = [...stages];
-		newStages[index].days = event.target.value;
+		newStages[index].days = Number(event.target.value);
 		setStages(newStages);
+		console.log('handleDaysChange', event.target.value)
 	};
 
 	const handleHoursChange = (index, event) => {
 		const newStages = [...stages];
-		newStages[index].hours = event.target.value;
+		newStages[index].hours = Number(event.target.value);
 		setStages(newStages);
+		console.log('handleHoursChange', event.target.value)
 	};
 
 	const handleSaveTemplate = () => {
@@ -76,11 +82,12 @@ function AddProject() {
 			stages,
 		};
 
-		// logic to save the project data to the database here
+		console.log(userEmail, projectData);
+		saveProject(userEmail, projectData)
 	};
 
 	const handleDeleteStage = (index) => {
-		setStageNames(stageNames.filter((_, i) => i !== index));
+		setStages(stages.filter((_, i) => i !== index));
 		setDays(days.filter((_, i) => i !== index));
 		setHours(hours.filter((_, i) => i !== index));
 	};
@@ -101,54 +108,32 @@ function AddProject() {
 				placeholder="Client Email"
 				id="client-email"
 			/>
-			{stageNames.map((stageName, index) => (
+			{stages.map((stage, index) => (
 				<div className="stage" key={index}>
 					<label>Stage {index + 1}</label>
 					<button className="delete-stage" onClick={() => handleDeleteStage(index)}>X</button>
 					<input
 						type="text"
-						value={stageName}
-						onChange={e =>
-							setStageNames(
-								stageNames.map((name, i) => (i === index ? e.target.value : name))
-							)
-						}
-						disabled={false}
+						value={stage.stageName}
+						onChange={e => handleStageNameChange(index, e)}
 						placeholder="Stage Name"
 					/>
-					<label>How long will this stage take to complete?</label>
 					<input
 						type="number"
-						value={days[index]}
-						onChange={e =>
-							setDays(
-								days.map((day, i) => (i === index ? e.target.value : day))
-							)
-						}
+						value={stage.days}
+						onChange={e => handleDaysChange(index, e)}
 						placeholder="Days"
-						id="days"
 					/>
-					<label>Days</label>
 					<input
 						type="number"
-						value={hours[index]}
-						onChange={e =>
-							setHours(
-								hours.map((hour, i) => (i === index ? e.target.value : hour))
-							)
-						}
+						value={stage.hours}
+						onChange={e => handleHoursChange(index, e)}
 						placeholder="Hours"
-						id="hours"
 					/>
-					<label>Hours</label>
 				</div>
 			))}
-			<button type="button" onClick={handleNewStage}>
-				New Stage
-			</button>
-			<button type="button" onClick={handleSaveProject}>
-				Save Project
-			</button>
+			<button onClick={handleNewStage}>Add Stage</button>
+			<button onClick={handleSaveProject}>Save Project</button>
 		</div>
 	);
 };
