@@ -18,6 +18,11 @@
   text-align: center;
 }
 
+.calendar__header button {
+	background-color: transparent;
+	font-size: 4em;
+}
+
 .calendar__table {
   width: 100%;
   border-collapse: collapse;
@@ -28,6 +33,7 @@
   text-align: center;
   font-size: 18px;
   padding: 10px;
+  background-image: url('../../assets/wood.jpg');
 }
 
 .calendar__table td {

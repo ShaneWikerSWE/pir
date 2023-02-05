@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import './calendar.css'
 
 
-const Calendar = (logout) => {
+const Calendar = () => {
 	const [date, setDate] = useState(new Date());
 
 	const updateMonth = (amount) => {
 		setDate((prev) => {
-			const newDate = new Date(prev.getFullYear(), prev.getMonth() + amount);
+			const newMonth = (prev.getMonth() + amount) % 12;
+			const newYear = prev.getFullYear() + Math.floor((prev.getMonth() + amount) / 12);
+			const newDate = new Date(newYear, newMonth, prev.getDate());
 			return newDate;
 		});
 	};
@@ -53,9 +55,9 @@ const Calendar = (logout) => {
 	return (
 		<div className="calendar">
 			<div className="calendar__header">
-				<button onClick={() => updateMonth(-1)}>Previous</button>
-				<h2>{date.toLocaleString("default", { month: "long" })}</h2>
-				<button onClick={() => updateMonth(1)}>Next</button>
+				<button onClick={() => updateMonth(-1)}>寧</button>
+				<h2>{date.toLocaleString("default", { month: "long" })} {date.getFullYear()}</h2>
+				<button onClick={() => updateMonth(1)}>嶺</button>
 			</div>
 			<table className="calendar__table">
 				<thead>
@@ -71,11 +73,7 @@ const Calendar = (logout) => {
 				</thead>
 				<tbody>{renderDays(date.getMonth(), date.getFullYear())}</tbody>
 			</table>
-			<button className="dashboard__btn" onClick={logout}>
-				Logout
-			</button>
 		</div>
 	);
 };
-
 export default Calendar;

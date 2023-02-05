@@ -1,0 +1,8 @@
+@font-face {
+  font-family: 'HackRegular';
+  src: url('Hack Regular Nerd Font Complete.ttf') format('truetype');
+}
+
+body {
+  font-family: 'HackRegular', sans-serif;
+}

@@ -4,9 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 import { auth, db, logout } from "./firebase";
 import { query, collection, getDocs, where } from "firebase/firestore";
-import ProjectList from './components/ProjectList/ProjectList'
 import Calendar from './components/Calendar/Calendar'
-import AddProject from './components/AddProject/AddProject'
 
 function Dashboard() {
 	const [user, loading, error] = useAuthState(auth);
@@ -37,7 +35,7 @@ function Dashboard() {
 	//<ProjectList name={name} user={user} logout={logout} />
 	return (
 		<>
-			<AddProject />
+			<Calendar />
 		</>
 	);
 }
