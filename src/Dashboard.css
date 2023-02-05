@@ -26,3 +26,20 @@
 .dashboard div {
   margin-top: 7px;
 }
+
+@media only screen and (max-width: 767px) {
+.dashboard {
+height: auto;
+width: auto;
+flex-direction: column;
+}
+
+.dashboard__container {
+padding: 15px;
+}
+
+.dashboard__btn {
+font-size: 16px;
+margin-top: 15px;
+}
+}

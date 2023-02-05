@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./projectlist.css";
 
-const ProjectList = ({ name }) => {
+const ProjectList = ({ name, logout }) => {
 	const projects = [
 		{ client: "ACME Inc.", status: "pending" },
 		{ client: "ABC Corp.", status: "in progress" },
@@ -12,6 +12,7 @@ const ProjectList = ({ name }) => {
 
 	return (
 		<div className="project-list">
+			<div className="title">PIR</div>
 			<Link to="/add-project">
 				<button style={{ top: "100px" }} className="add-project-button">Add project</button>
 			</Link>
@@ -31,6 +32,9 @@ const ProjectList = ({ name }) => {
 					))}
 				</tbody>
 			</table>
+			<button className="dashboard__btn" onClick={logout}>
+				Logout
+			</button>
 		</div>
 	);
 };

@@ -5,6 +5,8 @@ import "./Dashboard.css";
 import { auth, db, logout } from "./firebase";
 import { query, collection, getDocs, where } from "firebase/firestore";
 import ProjectList from './components/ProjectList/ProjectList'
+import Calendar from './components/Calendar/Calendar'
+import AddProject from './components/AddProject/AddProject'
 
 function Dashboard() {
 	const [user, loading, error] = useAuthState(auth);
@@ -31,9 +33,11 @@ function Dashboard() {
 		fetchUserName();
 	}, [user, loading]);
 
+	//			<Calendar name={name} user={user} logout={logout} />
+	//<ProjectList name={name} user={user} logout={logout} />
 	return (
 		<>
-			<ProjectList name={name} user={user} logout={logout} />
+			<AddProject />
 		</>
 	);
 }

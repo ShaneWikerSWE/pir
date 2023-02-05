@@ -5,20 +5,28 @@ import Register from "./Register";
 import Reset from "./Reset";
 import Dashboard from "./Dashboard";
 import AddProject from "./components/AddProject/AddProject";
+import Navbar from './components/Navbar/Navbar'
+import Calendar from './components/Calendar/Calendar'
+import ProjectList from './components/ProjectList/ProjectList'
 
 function App() {
 	return (
-		<div className="app">
-			<Router>
-				<Routes>
-					<Route exact path="/" element={<Login />} />
-					<Route exact path="/register" element={<Register />} />
-					<Route exact path="/reset" element={<Reset />} />
-					<Route exact path="/dashboard" element={<Dashboard />} />
-					<Route exact path="/add-project" element={<AddProject />} />
-				</Routes>
-			</Router>
-		</div>
+		<>
+			<div className="app">
+				<Router>
+					<Navbar />
+					<Routes>
+						<Route exact path="/" element={<Login />} />
+						<Route exact path="/register" element={<Register />} />
+						<Route exact path="/reset" element={<Reset />} />
+						<Route exact path="/dashboard" element={<Dashboard />} />
+						<Route exact path="/add-project" element={<AddProject />} />
+						<Route exact path="/calendar" element={<Calendar />} />
+						<Route exact path="/project-list" element={<ProjectList />} />
+					</Routes>
+				</Router>
+			</div>
+		</>
 	);
 }
 
