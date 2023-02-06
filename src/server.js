@@ -1,9 +1,12 @@
 const express = require('express');
 const client = require('./db');
 const axios = require('axios');
+const cors = require('cors');
 
 const bodyParser = require('body-parser');
 const app = express();
+app.use(cors({ origin: 'http://localhost:3000' }));
+
 const port = 4000;
 
 app.use(bodyParser.json());
@@ -18,9 +21,19 @@ app.post('/users', (req, res) => {
 			if (error) {
 				throw error;
 			}
-			res.status(201).send(`Entry added for user email: ${userEmail}`);
+			try {
+				res.status(201).send(`Entry added for user email: ${userEmail}`);
+			} catch (e) {
+				console.error(e)
+			}
 		}
 	);
+});
+
+app.use(function(req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
 });
 
 app.listen(port, () => {
@@ -45,3 +58,4 @@ axios.post('http://localhost:' + port + '/users', data)
 	.catch(error => {
 		console.error(error);
 	});
+

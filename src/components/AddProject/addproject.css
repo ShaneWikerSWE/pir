@@ -24,9 +24,10 @@ body {
   float: right;
   color: red;
    position: absolute;
-   top: 0;
+   top: -2vh;
    right: 0;
    color: red;
+   font-size: 2em;
 }
 
 .add-project input[type="text"],
@@ -36,6 +37,8 @@ body {
   font-size: 16px;
   display: block;
   margin: 10px auto;
+  background-color: black;
+  color: white;
 }
 
 .add-project input[type="number"] {
@@ -82,7 +85,7 @@ input[type="radio"] {
 }
 
 button {
-  background-color: black;
+  background-image: url('../../assets/wood.jpg');
   color: white;
   padding: 10px 20px;
   border: none;
@@ -90,4 +93,11 @@ button {
   font-size: 16px;
   margin: 20px auto;
   display: block;
+}
+
+.toast {
+	background-color: red;
+	color: white;
+	font-size: 2rem;
+	visibility: hidden;
 }

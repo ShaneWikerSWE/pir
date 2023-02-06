@@ -11,7 +11,7 @@
 }
 
 .add-project-button {
-  background-color: black;
+  background-image: url('../../assets/wood.jpg');
   color: white;
   padding: 10px 20px;
   border-radius: 5px;
@@ -28,7 +28,7 @@ table {
 }
 
 th {
-  background-color: black;
+  background-image: url('../../assets/wood.jpg');
   color: white;
   padding: 10px;
 }

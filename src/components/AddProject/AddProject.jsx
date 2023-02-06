@@ -1,7 +1,6 @@
 import React, { useState, useContext } from "react";
 import "./addproject.css";
 import UserContext from "../../UserContext";
-import saveProject from '../../features/saveProject'
 
 function AddProject() {
 	const [clientName, setClientName] = useState("");
@@ -9,6 +8,7 @@ function AddProject() {
 	const [stageNames, setStageNames] = useState([""]);
 	const [days, setDays] = useState([0]);
 	const [hours, setHours] = useState([0]);
+	const [toast, setToast] = useState('');
 	const [templateName, setTemplateName] = useState('');
 	const [stages, setStages] = useState([
 		{
@@ -17,6 +17,16 @@ function AddProject() {
 			hours: 0,
 		},
 	]);
+
+	const showToast = (toastMessage, color) => {
+		setToast(toastMessage)
+		document.querySelector(".toast").style.visibility = "visible";
+		document.querySelector(".toast").style.background = color;
+	};
+
+	const hideToast = () => {
+		document.querySelector(".toast").style.visibility = "hidden";
+	};
 
 	const { userEmail } = useContext(UserContext);
 
@@ -75,15 +85,71 @@ function AddProject() {
 		// code to load template here
 	};
 
+	const clearData = () => {
+		setClientName("");
+		setClientEmail("");
+		setStages([{ stageName: "", days: 0, hours: 0 }]);
+	}
+
 	const handleSaveProject = () => {
-		const projectData = {
-			clientName,
-			clientEmail,
-			stages,
+		const saveProject = async (stageData) => {
+			try {
+				const res = await fetch("http://localhost:4000/users", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(stageData),
+				});
+				const data = await res.json();
+				console.log(data);
+				clearData()
+				showToast('Success, you can see this client in the project list and calendar views above', 'black')
+			} catch (error) {
+				console.log(error);
+				if (error.message.includes('Unexpected token')) {
+					clearData()
+					showToast('Success, you can see this client in the project list and calendar views above', 'black')
+				}
+			}
 		};
 
-		console.log(userEmail, projectData);
-		saveProject(userEmail, projectData)
+		const parameters = ["stageName", "days", "hours"];
+		const clientParameters = ["clientName", "clientEmail"]
+
+		for (const stage of stages) {
+			for (const parameter of parameters) {
+				if (!stage[parameter]) {
+					if (!stage['days'] > 0 && !stage['hours'] > 0) {
+						console.log('parameter', parameter + ' is missing')
+						console.log(stages)
+						showToast('Fill in all fields to save project', 'red');
+						return;
+					}
+					hideToast()
+				}
+			}
+		}
+
+		for (const parameter of clientParameters) {
+			if (!parameter) {
+				console.log('parameter', parameter + ' is missing')
+				showToast('Fill in all fields to save project', 'red');
+				return;
+			}
+		}
+		stages.forEach((stage, index) => {
+			const stageData = {
+				userEmail,
+				clientName,
+				clientEmail,
+				stageName: stage.stageName,
+				stageNumber: index,
+				days: stage.days,
+				hours: stage.hours,
+				isCurrent: index === 0,
+			};
+			console.log("handleSaveProject stageData is", stageData);
+			saveProject(stageData);
+		});
 	};
 
 	const handleDeleteStage = (index) => {
@@ -91,6 +157,12 @@ function AddProject() {
 		setDays(days.filter((_, i) => i !== index));
 		setHours(hours.filter((_, i) => i !== index));
 	};
+
+	document.querySelectorAll('.add-project input[type="number"]').forEach(function(input) {
+		input.addEventListener('focus', function() {
+			this.select();
+		});
+	});
 
 	return (
 		<div className="add-project">
@@ -111,7 +183,9 @@ function AddProject() {
 			{stages.map((stage, index) => (
 				<div className="stage" key={index}>
 					<label>Stage {index + 1}</label>
-					<button className="delete-stage" onClick={() => handleDeleteStage(index)}>X</button>
+					{stages.length > 1 && (
+						<button className="delete-stage" onClick={() => handleDeleteStage(index)}>窱</button>
+					)}
 					<input
 						type="text"
 						value={stage.stageName}
@@ -134,6 +208,7 @@ function AddProject() {
 			))}
 			<button onClick={handleNewStage}>Add Stage</button>
 			<button onClick={handleSaveProject}>Save Project</button>
+			<div className="toast"> {toast} </div>
 		</div>
 	);
 };
