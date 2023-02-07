@@ -1,5 +1,14 @@
-import React from "react";
+import React from 'react';
 
-const UserContext = React.createContext(null);
+const UserContext = React.createContext({
+	email: {
+		userEmail: '',
+		setUserEmail: () => { },
+	},
+	projects: {
+		userProjects: [],
+		setUserProjects: () => { }
+	}
+});
 
-export default UserContext
+export default UserContext;

@@ -1,0 +1,10 @@
+.toast {
+position: fixed;
+bottom: 0;
+background-color: red;
+color: white;
+font-size: 2rem;
+visibility: hidden;
+height: 10vh;
+width: 100vw;
+}

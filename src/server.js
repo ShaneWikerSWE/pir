@@ -1,6 +1,5 @@
 const express = require('express');
 const client = require('./db');
-const axios = require('axios');
 const cors = require('cors');
 
 const bodyParser = require('body-parser');
@@ -13,7 +12,6 @@ app.use(bodyParser.json());
 
 app.post('/users', (req, res) => {
 	const { userEmail, clientName, clientEmail, stageName, stageNumber, days, hours, isCurrent } = req.body;
-	console.log(req.body)
 	client.query(
 		'INSERT INTO users (userEmail, clientName, clientEmail, stageName, stageNumber, days, hours, isCurrent) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
 		[userEmail, clientName, clientEmail, stageName, stageNumber, days, hours, isCurrent],
@@ -23,6 +21,25 @@ app.post('/users', (req, res) => {
 			}
 			try {
 				res.status(201).send(`Entry added for user email: ${userEmail}`);
+			} catch (e) {
+				console.error(e)
+			}
+		}
+	);
+});
+
+app.get('/users/:email', (req, res) => {
+	const email = req.params.email;
+	console.log('server email is ', email)
+	client.query(
+		'SELECT * FROM users WHERE userEmail = $1',
+		[email],
+		(error, results) => {
+			if (error) {
+				throw error;
+			}
+			try {
+				res.status(200).json(results.rows);
 			} catch (e) {
 				console.error(e)
 			}
@@ -40,22 +57,22 @@ app.listen(port, () => {
 	console.log(`Server listening at http://localhost:${port}`);
 });
 
-const data = {
-	userEmail: 'example@email.com',
-	clientName: 'Client Name',
-	clientEmail: 'client@email.com',
-	stageName: 'Stage Name',
-	stageNumber: 1,
-	days: 5,
-	hours: 10,
-	isCurrent: true
-};
+// const data = {
+// 	userEmail: 'example@email.com',
+// 	clientName: 'Client Name',
+// 	clientEmail: 'client@email.com',
+// 	stageName: 'Stage Name',
+// 	stageNumber: 1,
+// 	days: 5,
+// 	hours: 10,
+// 	isCurrent: true
+// };
 
-axios.post('http://localhost:' + port + '/users', data)
-	.then(res => {
-		console.log(res.data);
-	})
-	.catch(error => {
-		console.error(error);
-	});
+// axios.post('http://localhost:' + port + '/users', data)
+// 	.then(res => {
+// 		console.log(res.data);
+// 	})
+// 	.catch(error => {
+// 		console.error(error);
+// 	});
 

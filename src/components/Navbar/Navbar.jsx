@@ -8,22 +8,24 @@ import { auth, db, logout } from "../../firebase";
 
 const Navbar = () => {
 	return (
-		<div className="navbar-container">
-			<div className="navbar">
-				<img src={logo} alt="Logo" className="logo" />
-				<Link to="/logout" className="navbar-button">
-					<img src={logout_icon} alt="Logout" className="logout" />
-				</Link>
-				<div className="navbar-buttons">
-					<Link to="/calendar" className="navbar-button"></Link>
-					<Link to="/add-project" className="navbar-button"></Link>
-					<Link to="/project-list" className="navbar-button"></Link>
+		<>
+			<div className="navbar-container">
+				<div className="navbar">
+					<img src={logo} alt="Logo" className="logo" />
+					<Link to="/logout" className="navbar-button">
+						<img src={logout_icon} alt="Logout" className="logout" />
+					</Link>
+					<div className="navbar-buttons">
+						<Link to="/calendar" className="navbar-button"></Link>
+						<Link to="/add-project" className="navbar-button"></Link>
+						<Link to="/project-list" className="navbar-button"></Link>
+					</div>
+					<p className="title">
+						<img src={pir} alt="Pir" className="pir" />
+					</p>
 				</div>
-				<p className="title">
-					<img src={pir} alt="Pir" className="pir" />
-				</p>
 			</div>
-		</div>
+		</>
 	);
 };
 

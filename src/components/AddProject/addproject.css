@@ -95,9 +95,3 @@ button {
   display: block;
 }
 
-.toast {
-	background-color: red;
-	color: white;
-	font-size: 2rem;
-	visibility: hidden;
-}

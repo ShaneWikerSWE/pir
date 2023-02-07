@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import "./addproject.css";
 import UserContext from "../../UserContext";
+import { showToast, hideToast } from '../../App'
 
 function AddProject() {
 	const [clientName, setClientName] = useState("");
@@ -8,27 +9,19 @@ function AddProject() {
 	const [stageNames, setStageNames] = useState([""]);
 	const [days, setDays] = useState([0]);
 	const [hours, setHours] = useState([0]);
-	const [toast, setToast] = useState('');
 	const [templateName, setTemplateName] = useState('');
 	const [stages, setStages] = useState([
 		{
 			stageName: "",
 			days: 0,
 			hours: 0,
+			isCurrent: false
 		},
 	]);
 
-	const showToast = (toastMessage, color) => {
-		setToast(toastMessage)
-		document.querySelector(".toast").style.visibility = "visible";
-		document.querySelector(".toast").style.background = color;
-	};
-
-	const hideToast = () => {
-		document.querySelector(".toast").style.visibility = "hidden";
-	};
-
-	const { userEmail } = useContext(UserContext);
+	const { email, projects } = useContext(UserContext);
+	const { userEmail, setUserEmail } = email;
+	const { userProjects, setUserProjects } = projects;
 
 	const handleClientNameChange = (event) => {
 		setClientName(event.target.value);
@@ -93,22 +86,19 @@ function AddProject() {
 
 	const handleSaveProject = () => {
 		const saveProject = async (stageData) => {
+			const stageDataJSON = JSON.stringify(stageData)
+			console.log('handleSaveProject stageData in JSON is', stageDataJSON)
 			try {
 				const res = await fetch("http://localhost:4000/users", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(stageData),
+					body: stageDataJSON,
 				});
-				const data = await res.json();
-				console.log(data);
-				clearData()
 				showToast('Success, you can see this client in the project list and calendar views above', 'black')
+				setUserProjects(prevData => [...prevData, stageData])
 			} catch (error) {
-				console.log(error);
-				if (error.message.includes('Unexpected token')) {
-					clearData()
-					showToast('Success, you can see this client in the project list and calendar views above', 'black')
-				}
+				console.log(error)
+				showToast('Save failed, try again later', 'red')
 			}
 		};
 
@@ -208,7 +198,6 @@ function AddProject() {
 			))}
 			<button onClick={handleNewStage}>Add Stage</button>
 			<button onClick={handleSaveProject}>Save Project</button>
-			<div className="toast"> {toast} </div>
 		</div>
 	);
 };

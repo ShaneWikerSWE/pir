@@ -6,18 +6,19 @@ import { auth, logInWithEmailAndPassword, signInWithGoogle } from "./firebase";
 import "./Login.css";
 
 function Login() {
-	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [user, loading, error] = useAuthState(auth);
 	const navigate = useNavigate();
-	const { userEmail, setUserEmail } = useContext(UserContext)
+	const { email } = useContext(UserContext);
+	const { userEmail, setUserEmail } = email;
+	const { projects } = useContext(UserContext);
+	const { userProjects, setUserProjects } = projects;
 
 	useEffect(() => {
 		if (loading) {
-			// maybe trigger a loading screen
 			return;
 		}
-		if (user) {
+		if (user && user.email) {
 			setUserEmail(user.email)
 			navigate("/dashboard");
 			console.log(user.email)
@@ -30,8 +31,8 @@ function Login() {
 				<input
 					type="text"
 					className="login__textBox"
-					value={email}
-					onChange={(e) => setEmail(e.target.value)}
+					value={userEmail}
+					onChange={(e) => setUserEmail(e.target.value)}
 					placeholder="E-mail Address"
 				/>
 				<input

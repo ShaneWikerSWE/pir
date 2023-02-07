@@ -1,20 +1,22 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import "./projectlist.css";
+import UserContext from "../../UserContext";
 
-const ProjectList = ({ name }) => {
-	const projects = [
-		{ client: "ACME Inc.", status: "pending" },
-		{ client: "ABC Corp.", status: "in progress" },
-		{ client: "XYZ LLC", status: "finished" },
-		{ client: "EcoGreen Solutions", status: "pending" },
-	];
+const ProjectList = () => {
 
+	const { projects } = useContext(UserContext);
+	const { userProjects, setUserProjects } = projects;
+
+	console.log('ProjectList userProjects is', userProjects)
+	console.log('ProjectList projects is', projects)
+
+	const localProjects = userProjects.length > 0 ? userProjects.map((userProject) => ({
+		clientName: userProject.clientName,
+		status: "pending",
+	})) : []
 	return (
 		<div className="project-list">
-			<Link to="/add-project">
-				<button style={{ top: "100px" }} className="add-project-button">Add project</button>
-			</Link>
 			<table>
 				<thead>
 					<tr>
@@ -23,12 +25,14 @@ const ProjectList = ({ name }) => {
 					</tr>
 				</thead>
 				<tbody>
-					{projects.map((project, index) => (
-						<tr key={index}>
-							<td>{project.client}</td>
-							<td>{project.status}</td>
-						</tr>
-					))}
+					{localProjects.length >= 1 ? (
+						localProjects.map((project, index) => (
+							<tr key={index}>
+								<td>{project.clientName}</td>
+								<td>{project.status}</td>
+							</tr>
+						))
+					) : null}
 				</tbody>
 			</table>
 		</div>
@@ -36,3 +40,4 @@ const ProjectList = ({ name }) => {
 };
 
 export default ProjectList;
+
