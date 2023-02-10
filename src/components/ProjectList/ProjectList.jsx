@@ -29,7 +29,7 @@ const ProjectList = () => {
 		fetchData();
 	}, [token]);
 
-	console.log('ProjectList stagse is', stages)
+	console.log('ProjectList stages', stages)
 	console.log('ProjectList firebaseUser is', firebaseUser)
 
 	const localProjects = stages.length > 0 ? stages.map((stage) => ({
