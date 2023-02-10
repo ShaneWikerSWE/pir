@@ -10,10 +10,15 @@ const port = 4000;
 
 app.use(bodyParser.json());
 
-app.post('/users', (req, res) => {
+app.post('/stages', (req, res) => {
 	const { userEmail, clientName, clientEmail, stageName, stageNumber, days, hours, isCurrent } = req.body;
+	console.log('stages req.body is', req.body)
+
+	if (!userEmail) {
+		return res.status(400).send('userEmail is required');
+	}
 	client.query(
-		'INSERT INTO users (userEmail, clientName, clientEmail, stageName, stageNumber, days, hours, isCurrent) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+		'INSERT INTO stages (userEmail, clientName, clientEmail, stageName, stageNumber, days, hours, isCurrent) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
 		[userEmail, clientName, clientEmail, stageName, stageNumber, days, hours, isCurrent],
 		(error) => {
 			if (error) {
@@ -28,11 +33,11 @@ app.post('/users', (req, res) => {
 	);
 });
 
-app.get('/users/:email', (req, res) => {
+app.get('/stages/:email', (req, res) => {
 	const email = req.params.email;
 	console.log('server email is ', email)
 	client.query(
-		'SELECT * FROM users WHERE userEmail = $1',
+		'SELECT * FROM stages WHERE userEmail = $1',
 		[email],
 		(error, results) => {
 			if (error) {

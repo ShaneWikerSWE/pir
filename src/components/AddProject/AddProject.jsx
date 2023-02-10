@@ -1,16 +1,19 @@
 import React, { useState, useContext } from "react";
 import "./addproject.css";
-import UserContext from "../../UserContext";
+import { UserContext } from "../../UserContext";
 import { showToast, hideToast } from '../../App'
+import { useToken } from '../../App'
+
 
 function AddProject() {
+	const token = useToken()
 	const [clientName, setClientName] = useState("");
 	const [clientEmail, setClientEmail] = useState("");
 	const [stageNames, setStageNames] = useState([""]);
 	const [days, setDays] = useState([0]);
 	const [hours, setHours] = useState([0]);
 	const [templateName, setTemplateName] = useState('');
-	const [stages, setStages] = useState([
+	const [tempStages, setTempStages] = useState([
 		{
 			stageName: "",
 			days: 0,
@@ -19,9 +22,10 @@ function AddProject() {
 		},
 	]);
 
-	const { email, projects } = useContext(UserContext);
-	const { userEmail, setUserEmail } = email;
-	const { userProjects, setUserProjects } = projects;
+	const { stages, setStages, firebaseUser } = useContext(UserContext);
+	const email = firebaseUser.email
+	console.log('AddProject email is', email)
+
 
 	const handleClientNameChange = (event) => {
 		setClientName(event.target.value);
@@ -32,8 +36,8 @@ function AddProject() {
 	};
 
 	const handleAddStage = () => {
-		setStages([
-			...stages,
+		setTempStages([
+			...tempStages,
 			{
 				stageName: "",
 				days: 0,
@@ -43,34 +47,34 @@ function AddProject() {
 	};
 
 	const handleNewStage = (e) => {
-		setStages([...stages, { stageName: "", days: 0, hours: 0 }]);
+		setTempStages([...tempStages, { stageName: "", days: 0, hours: 0 }]);
 		setDays([...days, 0]);
 		setHours([...hours, 0]);
 	};
 
 	const handleStageNameChange = (index, event) => {
-		const newStages = [...stages];
-		newStages[index].stageName = event.target.value;
-		setStages(newStages);
+		const newTempStages = [...tempStages];
+		newTempStages[index].stageName = event.target.value;
+		setTempStages(newTempStages);
 	};
 
 	const handleDaysChange = (index, event) => {
-		const newStages = [...stages];
-		newStages[index].days = Number(event.target.value);
-		setStages(newStages);
+		const newTempStages = [...tempStages];
+		newTempStages[index].days = Number(event.target.value);
+		setTempStages(newTempStages);
 		console.log('handleDaysChange', event.target.value)
 	};
 
 	const handleHoursChange = (index, event) => {
-		const newStages = [...stages];
-		newStages[index].hours = Number(event.target.value);
-		setStages(newStages);
+		const newTempStages = [...tempStages];
+		newTempStages[index].hours = Number(event.target.value);
+		setTempStages(newTempStages);
 		console.log('handleHoursChange', event.target.value)
 	};
 
 	const handleSaveTemplate = () => {
 		// code to save template here
-		const template = { clientName, stages };
+		const template = { clientName, tempStages };
 		console.log("Saved template:", template);
 	};
 
@@ -81,24 +85,31 @@ function AddProject() {
 	const clearData = () => {
 		setClientName("");
 		setClientEmail("");
-		setStages([{ stageName: "", days: 0, hours: 0 }]);
+		setTempStages([{ stageName: "", days: 0, hours: 0 }]);
 	}
 
 	const handleSaveProject = () => {
 		const saveProject = async (stageData) => {
 			const stageDataJSON = JSON.stringify(stageData)
 			console.log('handleSaveProject stageData in JSON is', stageDataJSON)
-			try {
-				const res = await fetch("http://localhost:4000/users", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: stageDataJSON,
-				});
-				showToast('Success, you can see this client in the project list and calendar views above', 'black')
-				setUserProjects(prevData => [...prevData, stageData])
-			} catch (error) {
-				console.log(error)
-				showToast('Save failed, try again later', 'red')
+
+			if (token) {
+				console.log('ProjectList token is', token)
+				try {
+					const res = await fetch("http://localhost:4000/stages", {
+						method: "POST",
+						headers: {
+							Authorization: `Bearer ${token}`,
+							"Content-Type": "application/json"
+						},
+						body: stageDataJSON,
+					});
+					showToast('Success, you can see this client in the project list and calendar views above', 'black')
+					setStages(prevData => [...prevData, stageData])
+				} catch (error) {
+					console.log(error)
+					showToast('Save failed, try again later', 'red')
+				}
 			}
 		};
 
@@ -126,11 +137,12 @@ function AddProject() {
 				return;
 			}
 		}
-		stages.forEach((stage, index) => {
+		tempStages.forEach((stage, index) => {
+			console.log('AddProject email is', email)
 			const stageData = {
-				userEmail,
-				clientName,
-				clientEmail,
+				userEmail: email,
+				clientName: clientName,
+				clientEmail: clientEmail,
 				stageName: stage.stageName,
 				stageNumber: index,
 				days: stage.days,
@@ -138,6 +150,7 @@ function AddProject() {
 				isCurrent: index === 0,
 			};
 			console.log("handleSaveProject stageData is", stageData);
+			console.log("handleSaveProject stageData email is", stageData.userEmail);
 			saveProject(stageData);
 		});
 	};
@@ -170,7 +183,7 @@ function AddProject() {
 				placeholder="Client Email"
 				id="client-email"
 			/>
-			{stages.map((stage, index) => (
+			{tempStages.map((stage, index) => (
 				<div className="stage" key={index}>
 					<label>Stage {index + 1}</label>
 					{stages.length > 1 && (

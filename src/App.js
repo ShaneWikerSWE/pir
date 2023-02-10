@@ -5,7 +5,7 @@ import {
 	Routes,
 	Navigate
 } from "react-router-dom";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Login from "./Login";
 import Register from "./Register";
 import Reset from "./Reset";
@@ -15,9 +15,23 @@ import Navbar from "./components/Navbar/Navbar";
 import Calendar from "./components/Calendar/Calendar";
 import ProjectList from "./components/ProjectList/ProjectList";
 import { logout as logoutFunc, auth } from "./firebase";
-import UserContext from "./UserContext";
+import UserContextProvider from "./UserContext";
 import ProtectedRoute from "./ProtectedRoute";
 import { useAuthState } from "react-firebase-hooks/auth";
+
+export function useToken() {
+	const [token, setToken] = useState('')
+	useEffect(() => {
+		return auth.onAuthStateChanged(user => {
+			if (user) {
+				user.getIdToken(true)
+					.then(latestToken => setToken(latestToken))
+					.catch(err => console.log(err))
+			}
+		})
+	}, [])
+	return token
+}
 
 function Logout() {
 	auth.signOut();
@@ -38,20 +52,10 @@ export const hideToast = () => {
 
 function App() {
 	const [user, loading, error] = useAuthState(auth);
-	const [userEmail, setUserEmail] = useState();
-	const [userProjects, setUserProjects] = useState([]);
-	const email = useMemo(() => ({ userEmail, setUserEmail }), [
-		userEmail,
-		setUserEmail
-	]);
-	const projects = useMemo(() => ({ userProjects, setUserProjects }), [
-		userProjects,
-		setUserProjects
-	]);
 
 	return (
 		<>
-			<UserContext.Provider value={{ email, projects }}>
+			<UserContextProvider>
 				<div className="app">
 					<Router>
 						<Navbar />
@@ -68,7 +72,7 @@ function App() {
 					</Router>
 					<div className="toast" />
 				</div>
-			</UserContext.Provider>
+			</UserContextProvider>
 		</>
 	);
 }

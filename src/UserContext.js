@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { createContext, useState } from 'react';
 
-const UserContext = React.createContext({
-	email: {
-		userEmail: '',
-		setUserEmail: () => { },
-	},
-	projects: {
-		userProjects: [],
-		setUserProjects: () => { }
-	}
-});
+export const UserContext = createContext();
 
-export default UserContext;
+const UserContextProvider = (props) => {
+	const [stages, setStages] = useState([]);
+	const [firebaseUser, setFirebaseUser] = useState(null);
+
+	return (
+		<UserContext.Provider value={{ stages, firebaseUser, setStages, setFirebaseUser }}>
+			{props.children}
+		</UserContext.Provider>
+	);
+};
+
+export default UserContextProvider;

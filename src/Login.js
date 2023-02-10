@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import UserContext from './UserContext'
+import { UserContext } from './UserContext'
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { auth, logInWithEmailAndPassword, signInWithGoogle } from "./firebase";
@@ -9,17 +9,14 @@ function Login() {
 	const [password, setPassword] = useState("");
 	const [user, loading, error] = useAuthState(auth);
 	const navigate = useNavigate();
-	const { email } = useContext(UserContext);
-	const { userEmail, setUserEmail } = email;
-	const { projects } = useContext(UserContext);
-	const { userProjects, setUserProjects } = projects;
+	const { email, setEmail, setFirebaseUser } = useContext(UserContext);
 
 	useEffect(() => {
 		if (loading) {
 			return;
 		}
 		if (user && user.email) {
-			setUserEmail(user.email)
+			setFirebaseUser(user)
 			navigate("/dashboard");
 			console.log(user.email)
 		}
@@ -31,8 +28,8 @@ function Login() {
 				<input
 					type="text"
 					className="login__textBox"
-					value={userEmail}
-					onChange={(e) => setUserEmail(e.target.value)}
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
 					placeholder="E-mail Address"
 				/>
 				<input
