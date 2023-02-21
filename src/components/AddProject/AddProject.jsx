@@ -4,7 +4,6 @@ import { UserContext } from "../../UserContext";
 import { showToast, hideToast } from '../../App'
 import { useToken } from '../../App'
 
-
 function AddProject() {
 	const token = useToken()
 	const [clientName, setClientName] = useState("");
@@ -12,8 +11,10 @@ function AddProject() {
 	const [stageNames, setStageNames] = useState([""]);
 	const [days, setDays] = useState([0]);
 	const [hours, setHours] = useState([0]);
+	const [projectId, setProjectId] = useState(generateProjectId());
 	const [templateName, setTemplateName] = useState('');
 	const [tempStages, setTempStages] = useState([
+
 		{
 			stageName: "",
 			days: 0,
@@ -26,6 +27,14 @@ function AddProject() {
 	const email = firebaseUser.email
 	console.log('AddProject email is', email)
 
+	function generateProjectId() {
+		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		let id = '';
+		for (let i = 0; i < 10; i++) {
+			id += chars.charAt(Math.floor(Math.random() * chars.length));
+		}
+		return id;
+	}
 
 	const handleClientNameChange = (event) => {
 		setClientName(event.target.value);
@@ -89,30 +98,6 @@ function AddProject() {
 	}
 
 	const handleSaveProject = () => {
-		const saveProject = async (stageData) => {
-			const stageDataJSON = JSON.stringify(stageData)
-			console.log('handleSaveProject stageData in JSON is', stageDataJSON)
-
-			if (token) {
-				console.log('ProjectList token is', token)
-				try {
-					const res = await fetch("http://localhost:4000/stages", {
-						method: "POST",
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"Content-Type": "application/json"
-						},
-						body: stageDataJSON,
-					});
-					showToast('Success, you can see this client in the project list and calendar views above', 'black')
-					setStages(prevData => [...prevData, stageData])
-				} catch (error) {
-					console.log(error)
-					showToast('Save failed, try again later', 'red')
-				}
-			}
-		};
-
 		const parameters = ["stageName", "days", "hours"];
 		const clientParameters = ["clientName", "clientEmail"]
 
@@ -137,22 +122,96 @@ function AddProject() {
 				return;
 			}
 		}
-		tempStages.forEach((stage, index) => {
-			console.log('AddProject email is', email)
-			const stageData = {
-				userEmail: email,
-				clientName: clientName,
-				clientEmail: clientEmail,
-				stageName: stage.stageName,
-				stageNumber: index,
-				days: stage.days,
-				hours: stage.hours,
-				isCurrent: index === 0,
-			};
-			console.log("handleSaveProject stageData is", stageData);
-			console.log("handleSaveProject stageData email is", stageData.userEmail);
-			saveProject(stageData);
-		});
+		console.log('AddProject projectId is', projectId)
+		fetch('http://localhost:4000/projects', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify({
+				project_id: projectId,
+				client_email: clientEmail,
+				client_name: clientName,
+				user_email: firebaseUser.email,
+			})
+		})
+			.then((response) => {
+				console.log('AddProject response is', response)
+
+				if (response.status === 201) {
+					return response.text();
+				}
+
+			})
+		/*
+			.then((data) => {
+				if (data) {
+					const project_id = data.project_id;
+					tempStages.forEach((stage, index) => {
+						const { stage_name, days, hours, is_current } = stage;
+						fetch(process.env.db_url + '/stages', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+								token: token
+							},
+							body: JSON.stringify({
+								stage_name: stage_name,
+								stage_number: index + 1,
+								days: days,
+								hours: hours,
+								is_complete: false,
+								project_id: project_id
+							})
+						})
+							.then((response) => {
+								if (response.status === 201) {
+									return response.json();
+								}
+							})
+							.then((data) => {
+								if (data) {
+									const stage_id = data.stage_id;
+									fetch('http://localhost:4000/project_stages', {
+										method: 'POST',
+										headers: {
+											'Content-Type': 'application/json',
+											token: token
+										},
+										body: JSON.stringify({
+											project_id: project_id,
+											stage_id: stage_id
+										})
+									})
+										.then((response) => {
+											if (response.status === 201) {
+												return response.json();
+											}
+										})
+										.then((data) => {
+											if (data) {
+												if (is_current === true) {
+													fetch('http://localhost:4000/projects', {
+														method: 'PUT',
+														headers: {
+															'Content-Type': 'application/json',
+															token: token
+														},
+														body: JSON.stringify({
+															project_id: project_id,
+															current_stage: stage_name
+														})
+													});
+												}
+											}
+										});
+								}
+							});
+					});
+				}
+			});
+		*/
 	};
 
 	const handleDeleteStage = (index) => {

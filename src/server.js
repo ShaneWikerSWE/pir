@@ -10,25 +10,111 @@ const port = 4000;
 
 app.use(bodyParser.json());
 
-app.post('/stages', (req, res) => {
-	const { userEmail, clientName, clientEmail, stageName, stageNumber, days, hours, isCurrent } = req.body;
+app.post('/project_stages', (req, res) => {
+	const { project_id, stage_id } = req.body;
 	console.log('stages req.body is', req.body)
-
-	if (!userEmail) {
-		return res.status(400).send('userEmail is required');
+	if (!project_id || !stage_id) {
+		res.status(400).send("Bad Request: project_id and stage_id are required.");
+		return;
 	}
+
 	client.query(
-		'INSERT INTO stages (userEmail, clientName, clientEmail, stageName, stageNumber, days, hours, isCurrent) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-		[userEmail, clientName, clientEmail, stageName, stageNumber, days, hours, isCurrent],
+		'INSERT INTO stages (project_id, stage_id) VALUES ($1, $2)',
+		[project_id, stage_id],
 		(error) => {
 			if (error) {
-				throw error;
+				res.status(500).send("Internal Server Error: Failed to insert data into the database.");
+				return;
 			}
-			try {
-				res.status(201).send(`Entry added for user email: ${userEmail}`);
-			} catch (e) {
-				console.error(e)
+			res.status(201).send(`Entry added for project_id: ${project_id} stage_id: ${stage_id}`);
+		}
+	);
+});
+
+const projectIdRegex = /^[a-zA-Z0-9]+$/;
+
+app.post('/projects', (req, res) => {
+	const { project_id, client_email, client_name, user_email } = req.body;
+	console.log('stages req.body is', req.body)
+	if (!project_id || !client_email || !client_name || !user_email) {
+		res.status(400).send("Bad Request: project_id, client_email, client_name, and user_email are required.");
+		return;
+	}
+
+	if (!projectIdRegex.test(project_id)) {
+		res.status(400).send("Bad Request: project_id must contain only letters and numbers.");
+		return;
+	}
+
+	client.query(
+		'INSERT INTO projects (project_id, client_email, client_name, user_email) VALUES ($1, $2, $3, $4)',
+		[project_id, client_email, client_name, user_email],
+		(error) => {
+			if (error) {
+				res.status(500).send("Internal Server Error: Failed to insert data into the database.");
+				return;
 			}
+			res.status(201).send(`Entry added for project_id : ${project_id}`);
+		}
+	);
+});
+
+app.post('/stages', (req, res) => {
+	const { stage_id, stage_name, stage_number, days, hours, is_complete, project_id } = req.body;
+
+	if (!stage_id || !stage_name || !stage_number || !days || !hours || !is_complete || !project_id) {
+		return res.status(400).send({ error: 'All values are required' });
+	}
+
+	client.query(
+		'INSERT INTO stages ( stage_id, stage_name, stage_number, days, hours, is_complete, project_id ) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+		[stage_id, stage_name, stage_number, days, hours, is_complete, project_id],
+		(error) => {
+			if (error) {
+				return res.status(500).send({ error: 'Error inserting data into the database' });
+			}
+
+			res.status(201).send(`Entry added for stage_id: ${stage_id}`);
+		}
+	);
+});
+
+app.post('/users', (req, res) => {
+	const { user_id, user_email } = req.body;
+
+	if (!user_id || !user_email) {
+		return res.status(400).send({ error: 'Both user_id and user_email are required' });
+	}
+
+	client.query(
+		'INSERT INTO users ( user_id, user_email ) VALUES ($1, $2)',
+		[user_id, user_email],
+		(error) => {
+			if (error) {
+				return res.status(500).send({ error: 'Error inserting data into the database' });
+			}
+
+			res.status(201).send(`Entry added for user_id: ${user_id}`);
+		}
+	);
+});
+
+app.post('/work_sessions', (req, res) => {
+	const { work_session_id, start_time, end_time, user_id } = req.body;
+
+	if (!work_session_id || !start_time || !end_time || !user_id) {
+		return res.status(400).send({ error: 'All values are required' });
+	}
+
+	client.query(
+		'INSERT INTO work_sessions ( work_session_id, start_time, end_time, user_id ) VALUES ($1, $2, $3, $4)',
+		[work_session_id, start_time, end_time, user_id],
+		(error) => {
+			if (error) {
+				return res.status(500).send({ error: 'Error inserting data into the database' });
+			}
+
+			res.status(201).send(`Entry added for work_session_id: ${work_session_id}`);
 		}
 	);
 });
@@ -61,23 +147,3 @@ app.use(function(req, res, next) {
 app.listen(port, () => {
 	console.log(`Server listening at http://localhost:${port}`);
 });
-
-// const data = {
-// 	userEmail: 'example@email.com',
-// 	clientName: 'Client Name',
-// 	clientEmail: 'client@email.com',
-// 	stageName: 'Stage Name',
-// 	stageNumber: 1,
-// 	days: 5,
-// 	hours: 10,
-// 	isCurrent: true
-// };
-
-// axios.post('http://localhost:' + port + '/users', data)
-// 	.then(res => {
-// 		console.log(res.data);
-// 	})
-// 	.catch(error => {
-// 		console.error(error);
-// 	});
-
