@@ -12,14 +12,14 @@ app.use(bodyParser.json());
 
 app.post('/project_stages', (req, res) => {
 	const { project_id, stage_id } = req.body;
-	console.log('stages req.body is', req.body)
+	console.log('project_stages req.body is', req.body)
 	if (!project_id || !stage_id) {
 		res.status(400).send("Bad Request: project_id and stage_id are required.");
 		return;
 	}
 
 	client.query(
-		'INSERT INTO stages (project_id, stage_id) VALUES ($1, $2)',
+		'INSERT INTO project_stages (project_id, stage_id) VALUES ($1, $2)',
 		[project_id, stage_id],
 		(error) => {
 			if (error) {
@@ -31,50 +31,51 @@ app.post('/project_stages', (req, res) => {
 	);
 });
 
-const projectIdRegex = /^[a-zA-Z0-9]+$/;
-
 app.post('/projects', (req, res) => {
-	const { project_id, client_email, client_name, user_email } = req.body;
-	console.log('stages req.body is', req.body)
-	if (!project_id || !client_email || !client_name || !user_email) {
-		res.status(400).send("Bad Request: project_id, client_email, client_name, and user_email are required.");
-		return;
-	}
-
-	if (!projectIdRegex.test(project_id)) {
-		res.status(400).send("Bad Request: project_id must contain only letters and numbers.");
+	const { project_name, client_email, client_name, user_email } = req.body;
+	console.log('projects req.body is', req.body);
+	if (!project_name || !client_email || !client_name || !user_email) {
+		res.status(400).send("Bad Request: project_name, client_email, client_name, and user_email are required.");
 		return;
 	}
 
 	client.query(
-		'INSERT INTO projects (project_id, client_email, client_name, user_email) VALUES ($1, $2, $3, $4)',
-		[project_id, client_email, client_name, user_email],
-		(error) => {
+		'INSERT INTO projects (project_name, client_email, client_name, user_email, current_stage, project_number) VALUES ($1, $2, $3, $4, $5, (SELECT COALESCE(MAX(project_number), 0) + 1 FROM projects WHERE user_email = $4)) RETURNING project_id',
+		[project_name, client_email, client_name, user_email, 'pending'],
+		(error, result) => {
 			if (error) {
+				console.log('projects error is', error)
+
 				res.status(500).send("Internal Server Error: Failed to insert data into the database.");
 				return;
 			}
-			res.status(201).send(`Entry added for project_id : ${project_id}`);
+			res.status(201).send(`Entry added for project_name : ${project_name}. Project ID: ${result.rows[0].project_id}`);
 		}
 	);
 });
 
 app.post('/stages', (req, res) => {
-	const { stage_id, stage_name, stage_number, days, hours, is_complete, project_id } = req.body;
+	const { stage_name, stage_number, days, hours, is_complete, project_id } = req.body;
 
-	if (!stage_id || !stage_name || !stage_number || !days || !hours || !is_complete || !project_id) {
+	// Parse string values as their expected data types
+	const parsedDays = parseInt(days);
+	const parsedHours = parseInt(hours);
+	const parsedIsComplete = is_complete === true || is_complete === 'true';
+	const parsedProjectId = parseInt(project_id);
+
+	if (!stage_name || !stage_number || isNaN(parsedDays) || isNaN(parsedHours) || typeof parsedIsComplete !== 'boolean' || isNaN(parsedProjectId)) {
 		return res.status(400).send({ error: 'All values are required' });
 	}
 
 	client.query(
-		'INSERT INTO stages ( stage_id, stage_name, stage_number, days, hours, is_complete, project_id ) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-		[stage_id, stage_name, stage_number, days, hours, is_complete, project_id],
-		(error) => {
+		'INSERT INTO stages (stage_name, stage_number, days, hours, is_complete, project_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING stage_id',
+		[stage_name, stage_number, parsedDays, parsedHours, parsedIsComplete, parsedProjectId],
+		(error, result) => {
 			if (error) {
+				console.log('error', error)
 				return res.status(500).send({ error: 'Error inserting data into the database' });
 			}
-
-			res.status(201).send(`Entry added for stage_id: ${stage_id}`);
+			res.status(201).send(`Entry added for stage_name: ${stage_name}. Stage ID: ${result.rows[0].stage_id}`);
 		}
 	);
 });
@@ -100,15 +101,15 @@ app.post('/users', (req, res) => {
 });
 
 app.post('/work_sessions', (req, res) => {
-	const { work_session_id, start_time, end_time, user_id } = req.body;
+	const { work_session_id, start_time, end_time, user_email } = req.body;
 
-	if (!work_session_id || !start_time || !end_time || !user_id) {
+	if (!work_session_id || !start_time || !end_time || !user_email) {
 		return res.status(400).send({ error: 'All values are required' });
 	}
 
 	client.query(
-		'INSERT INTO work_sessions ( work_session_id, start_time, end_time, user_id ) VALUES ($1, $2, $3, $4)',
-		[work_session_id, start_time, end_time, user_id],
+		'INSERT INTO work_sessions ( work_session_id, start_time, end_time, user_email ) VALUES ($1, $2, $3, $4)',
+		[work_session_id, start_time, end_time, user_email],
 		(error) => {
 			if (error) {
 				return res.status(500).send({ error: 'Error inserting data into the database' });
@@ -121,9 +122,9 @@ app.post('/work_sessions', (req, res) => {
 
 app.get('/stages/:email', (req, res) => {
 	const email = req.params.email;
-	console.log('server email is ', email)
+	console.log('server email is ', email);
 	client.query(
-		'SELECT * FROM stages WHERE userEmail = $1',
+		'SELECT s.*, p.project_name, p.project_number FROM stages s JOIN projects p ON s.project_id = p.project_id WHERE p.user_email = $1',
 		[email],
 		(error, results) => {
 			if (error) {
@@ -132,7 +133,7 @@ app.get('/stages/:email', (req, res) => {
 			try {
 				res.status(200).json(results.rows);
 			} catch (e) {
-				console.error(e)
+				console.error(e);
 			}
 		}
 	);

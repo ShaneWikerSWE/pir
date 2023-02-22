@@ -6,12 +6,12 @@ import { useToken } from '../../App'
 
 function AddProject() {
 	const token = useToken()
+	const [projectName, setProjectName] = useState("");
 	const [clientName, setClientName] = useState("");
 	const [clientEmail, setClientEmail] = useState("");
 	const [stageNames, setStageNames] = useState([""]);
 	const [days, setDays] = useState([0]);
 	const [hours, setHours] = useState([0]);
-	const [projectId, setProjectId] = useState(generateProjectId());
 	const [templateName, setTemplateName] = useState('');
 	const [tempStages, setTempStages] = useState([
 
@@ -26,15 +26,6 @@ function AddProject() {
 	const { stages, setStages, firebaseUser } = useContext(UserContext);
 	const email = firebaseUser.email
 	console.log('AddProject email is', email)
-
-	function generateProjectId() {
-		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-		let id = '';
-		for (let i = 0; i < 10; i++) {
-			id += chars.charAt(Math.floor(Math.random() * chars.length));
-		}
-		return id;
-	}
 
 	const handleClientNameChange = (event) => {
 		setClientName(event.target.value);
@@ -97,122 +88,134 @@ function AddProject() {
 		setTempStages([{ stageName: "", days: 0, hours: 0 }]);
 	}
 
-	const handleSaveProject = () => {
-		const parameters = ["stageName", "days", "hours"];
-		const clientParameters = ["clientName", "clientEmail"]
+	const handleSaveProject = async (e) => {
+		e.preventDefault();
 
-		for (const stage of stages) {
-			for (const parameter of parameters) {
-				if (!stage[parameter]) {
-					if (!stage['days'] > 0 && !stage['hours'] > 0) {
-						console.log('parameter', parameter + ' is missing')
-						console.log(stages)
-						showToast('Fill in all fields to save project', 'red');
-						return;
-					}
-					hideToast()
-				}
-			}
-		}
+		const data = {
+			project_name: projectName,
+			client_name: clientName,
+			client_email: clientEmail,
+			user_email: email,
+		};
 
-		for (const parameter of clientParameters) {
-			if (!parameter) {
-				console.log('parameter', parameter + ' is missing')
-				showToast('Fill in all fields to save project', 'red');
-				return;
-			}
-		}
-		console.log('AddProject projectId is', projectId)
-		fetch('http://localhost:4000/projects', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
-			},
-			body: JSON.stringify({
-				project_id: projectId,
-				client_email: clientEmail,
-				client_name: clientName,
-				user_email: firebaseUser.email,
-			})
-		})
-			.then((response) => {
+		console.log('handleSaveProject data is', data)
+
+		try {
+			// Create project
+			const response = await fetch("http://localhost:4000/projects", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": `Bearer ${token}`,
+				},
+				body: JSON.stringify(data),
+			});
+
+			if (response.status === 201) {
 				console.log('AddProject response is', response)
 
-				if (response.status === 201) {
-					return response.text();
+				const responseData = await response.text(); // Extract response data
+
+				console.log(responseData)
+				const projectIdString = responseData.split(":").pop().trim(); // "14"
+				const projectId = parseInt(projectIdString); // 14
+				console.log("Project ID:", projectId);
+
+				// Create stages and project_stages
+				for (let i = 0; i < tempStages.length; i++) {
+					const stageData = {
+						stage_name: tempStages[i].stageName,
+						stage_number: i + 1,
+						days: tempStages[i].days,
+						hours: tempStages[i].hours,
+						is_complete: false,
+						project_id: projectId,
+					};
+
+					console.log('handleSaveProject stageData is', stageData)
+					const stageResponse = await fetch("http://localhost:4000/stages", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							"Authorization": `Bearer ${token}`,
+						},
+						body: JSON.stringify(stageData),
+					});
+
+					if (stageResponse.status === 201) {
+
+						const stageResponseData = await stageResponse.text(); // Extract response data
+
+						console.log(stageResponseData)
+						const stageIdString = stageResponseData.split(":").pop().trim();
+						const stageId = parseInt(stageIdString);
+						console.log("Stage ID:", stageId);
+
+						const projectStageData = {
+							project_id: projectId,
+							stage_id: stageId,
+						};
+
+						console.log("projectStageData is", projectStageData);
+
+						const projectStageResponse = await fetch("http://localhost:4000/project_stages", {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+								"Authorization": `Bearer ${token}`,
+							},
+							body: JSON.stringify(projectStageData),
+						});
+
+						if (projectStageResponse.status === 201) {
+							// Successfully created stage and project_stage
+							// Update stages state with the new stage
+							const newStage = {
+								stage_id: `stage${i + 1}`,
+								stage_name: tempStages[i].stageName,
+								stage_number: i + 1,
+								days: tempStages[i].days,
+								hours: tempStages[i].hours,
+								is_complete: false,
+								project_id: projectId,
+							};
+							setStages([...stages, newStage]);
+						} else {
+							// Error creating project_stage
+							console.error("Error creating project_stage", projectStageResponse);
+						}
+					} else {
+						// Error creating stage
+						console.error("Error creating stage", stageResponse);
+					}
 				}
 
-			})
-		/*
-			.then((data) => {
-				if (data) {
-					const project_id = data.project_id;
-					tempStages.forEach((stage, index) => {
-						const { stage_name, days, hours, is_current } = stage;
-						fetch(process.env.db_url + '/stages', {
-							method: 'POST',
-							headers: {
-								'Content-Type': 'application/json',
-								token: token
-							},
-							body: JSON.stringify({
-								stage_name: stage_name,
-								stage_number: index + 1,
-								days: days,
-								hours: hours,
-								is_complete: false,
-								project_id: project_id
-							})
-						})
-							.then((response) => {
-								if (response.status === 201) {
-									return response.json();
-								}
-							})
-							.then((data) => {
-								if (data) {
-									const stage_id = data.stage_id;
-									fetch('http://localhost:4000/project_stages', {
-										method: 'POST',
-										headers: {
-											'Content-Type': 'application/json',
-											token: token
-										},
-										body: JSON.stringify({
-											project_id: project_id,
-											stage_id: stage_id
-										})
-									})
-										.then((response) => {
-											if (response.status === 201) {
-												return response.json();
-											}
-										})
-										.then((data) => {
-											if (data) {
-												if (is_current === true) {
-													fetch('http://localhost:4000/projects', {
-														method: 'PUT',
-														headers: {
-															'Content-Type': 'application/json',
-															token: token
-														},
-														body: JSON.stringify({
-															project_id: project_id,
-															current_stage: stage_name
-														})
-													});
-												}
-											}
-										});
-								}
-							});
-					});
-				}
-			});
-		*/
-	};
+				// Clear form fields
+				setClientName("");
+				setClientEmail("");
+				setStageNames([""]);
+				setDays([0]);
+				setHours([0]);
+				setTemplateName("");
+				setTempStages([
+					{
+						stageName: "",
+						days: 0,
+						hours: 0,
+						isCurrent: false,
+					},
+				]);
+
+				showToast("Project created successfully!", "success");
+			} else {
+				console.error("Error creating project", response);
+				showToast("Failed to create project", "error");
+			}
+		} catch (error) {
+			console.error("Error creating project", error);
+			showToast("Failed to create project", "error");
+		};
+	}
 
 	const handleDeleteStage = (index) => {
 		setStages(stages.filter((_, i) => i !== index));
@@ -228,6 +231,13 @@ function AddProject() {
 
 	return (
 		<div className="add-project">
+			<input
+				type="text"
+				value={projectName}
+				onChange={e => setProjectName(e.target.value)}
+				placeholder="Project Name"
+				id="project-name"
+			/>
 			<input
 				type="text"
 				value={clientName}

@@ -1,12 +1,8 @@
 .project-list {
   height: 100vh;
   width: 100vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   background: #228b22;
   color: white;
-  text-align: center;
   padding-top: 100px;
 }
 
@@ -20,43 +16,27 @@
   text-decoration: none;
 }
 
-table {
-  margin-top: 20px;
-  border-collapse: collapse;
-  width: 80%;
-  text-align: left;
-}
-
-th {
-  background-image: url('../../assets/wood.jpg');
+.drag-handle {
+  display: inline-flex;
+  background-color: purple;
   color: white;
-  padding: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: move;
 }
 
-td {
-  padding: 10px;
-  border-bottom: 1px solid white;
+.edit-button {
+  background-color: white;
+  color: #228b22;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-h1 {
-  font-size: 5em;
-  margin-bottom: 50px;
+.project-list-item {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 80%;
+  margin-bottom: 10px;
 }
-
-.handle {
- flex: none;
-  width: 7.5px;
-  height: 100%;
-}
-
-.handle::before {
-    content: '';
-    border-left: 4px dotted #ccc;
-    display: block;
-    height: 20px;
-    margin: 15px 3px;
-  }
-
-.handle:hover::before {
-    border-color: #888;
-  }

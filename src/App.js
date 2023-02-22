@@ -20,17 +20,23 @@ import ProtectedRoute from "./ProtectedRoute";
 import { useAuthState } from "react-firebase-hooks/auth";
 
 export function useToken() {
-	const [token, setToken] = useState('')
+	const [token, setToken] = useState('');
+
 	useEffect(() => {
-		return auth.onAuthStateChanged(user => {
+		const unsubscribe = auth.onIdTokenChanged((user) => {
 			if (user) {
-				user.getIdToken(true)
-					.then(latestToken => setToken(latestToken))
-					.catch(err => console.log(err))
+				user.getIdToken().then((latestToken) => {
+					setToken(latestToken);
+				});
+			} else {
+				setToken('');
 			}
-		})
-	}, [])
-	return token
+		});
+
+		return unsubscribe;
+	}, []);
+
+	return token;
 }
 
 function Logout() {
