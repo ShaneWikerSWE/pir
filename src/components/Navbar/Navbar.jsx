@@ -20,9 +20,9 @@ const Navbar = () => {
 						<Link to="/add-project" className="navbar-button"></Link>
 						<Link to="/project-list" className="navbar-button"></Link>
 					</div>
-					<p className="title">
+					<div className="pir-container">
 						<img src={pir} alt="Pir" className="pir" />
-					</p>
+					</div>
 				</div>
 			</div>
 		</>

@@ -1,42 +1,54 @@
 .project-list {
-  height: 100vh;
-  width: 100vw;
-  background: #228b22;
-  color: white;
-  padding-top: 100px;
+height: 100vh;
+width: 100vw;
+background: #228b22;
+color: white;
+padding-top: 100px;
 }
 
 .add-project-button {
-  background-image: url('../../assets/wood.jpg');
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-size: 16px;
-  margin-bottom: 20px;
-  text-decoration: none;
+    background-image: url('../../assets/wood.jpg');
+    background-position: center 10px; /* Add this line to position the image */
+    color: white;
+    border-radius: 5px;
+    font-size: 16px;
+    text-decoration: none;
 }
 
 .drag-handle {
-  display: inline-flex;
-  background-color: purple;
-  color: white;
-  padding: 8px;
-  border-radius: 4px;
-  cursor: move;
-}
-
-.edit-button {
-  background-color: white;
-  color: #228b22;
-  padding: 8px;
-  border-radius: 4px;
-  cursor: pointer;
+display: inline-flex;
+background-color: purple;
+color: white;
+padding: 8px;
+border-radius: 4px;
+cursor: move;
 }
 
 .project-list-item {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  width: 80%;
-  margin-bottom: 10px;
+display: flex;
+justify-content: flex-start;
+align-items: center;
+width: 80%;
+margin-bottom: 10px;
+margin-left: 12vw; /* Add this line to remove default margin /
+position: relative; / Add this line to position the item relatively */
+}
+
+.edit-button {
+background-color: white;
+color: white;
+font-size: 2em;
+padding: 8px;
+border-radius: 4px;
+cursor: pointer;
+position: absolute; /* Add this line to position the button absolutely /
+left: 2vw; / Change this line to position the button to the left /
+width: 10vw;
+top: 10px; / Add this line to add space between edit buttons vertically */
+}
+
+.project-name {
+margin-left: 15vw;
+color: white;
+font-size: 2em;
 }

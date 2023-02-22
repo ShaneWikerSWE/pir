@@ -72,12 +72,13 @@ const ProjectList = () => {
 		setProjects(newProjects);
 	}
 
+	console.log('ProjectList projects is', projects)
+
 	return (
-		<DragDropContext onDragEnd={onDragEnd}>
+		<DragDropContext onDragEnd={onDragEnd} className="project-list-wrapper">
 			<Droppable droppableId="droppable">
 				{(provided, snapshot) => (
 					<div
-
 						{...provided.droppableProps}
 						ref={provided.innerRef}
 					>
@@ -91,8 +92,7 @@ const ProjectList = () => {
 										className="project-list-item"
 									>
 										<button className="edit-button">Edit</button>
-										<div className="project-number">{project.project_number}</div>
-										<div className="project-name">{project.project_name}</div>
+										<div className="project-name">{project.project_number + '. ' + project.project_name}</div>
 									</div>
 								)}
 							</Draggable>

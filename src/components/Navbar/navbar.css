@@ -1,12 +1,12 @@
 body {
-position: absolute;
-left: 0px;
-right: 0px;
-padding-top: 15vh; /* Replace 15vh with the height of your Navbar */
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding-top: 25vh; /* Replace 15vh with the height of your Navbar */
 }
 
 .navbar {
-  height: 18vh;
+  height: 22vh;
   background-image: url('../../assets/wood.jpg');
   display: flex;
   align-items: center;
@@ -15,34 +15,36 @@ padding-top: 15vh; /* Replace 15vh with the height of your Navbar */
 }
 
 .navbar-container {
-position: fixed;
-top: 0;
-left: 0;
-right: 0;
-z-index: 999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
 }
 
 .navbar-buttons {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: fixed;
-  top: 11vh;
+  position: absolute;
+  bottom: 0;
   left: 0;
   right: 0;
   font-size: 2rem;
 }
 
 .navbar-button {
-	padding-left: 1em;
-	padding-right: 1em;
+  padding-left: 1em;
+  padding-right: 1em;
   color: white;
+  height: 10vh;
+  font-size: 8vh;
 }
 
 .logo {
   position: absolute;
   left: 0;
-  top: 0vh;
+  top: 0;
   height: 15vh;
 }
 
@@ -53,14 +55,26 @@ z-index: 999;
   padding-bottom: 1rem;
 }
 
+.pir-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: -2vh;
+  left: 0;
+  right: 0;
+  bottom: 10vh;
+}
+
 .pir {
-	max-height: 20vh;
+  max-height: 20vh;
+  margin: auto;
 }
 
 .logout {
-	position: absolute;
-	right: 2vw;
-	top: 2vh;
+  position: absolute;
+  right: 2vw;
+  top: 2vh;
   height: 7vw; /* increased height */
   width: 7vw; /* increased width */
 }
