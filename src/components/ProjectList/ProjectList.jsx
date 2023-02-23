@@ -79,7 +79,7 @@ const ProjectList = () => {
 		setProjects(newProjects);
 	}
 
-	const onSaveOrder = () => {
+	const onSaveOrder = async () => {
 		const updatedProjects = projects.map((project, index) => {
 			const updatedStages = project.stages.map((stage, stageIndex) => {
 				return {
@@ -117,7 +117,35 @@ const ProjectList = () => {
 		console.log('ProjectList updatedStages is', updatedStages);
 
 		setStages(updatedStages);
-		// setOriginalProjects(updatedProjects);
+
+		// Call the endpoint to update project numbers
+		try {
+			const updatedProjectsPayload = updatedProjects.map(project => ({
+				project_id: project.project_id,
+				project_number: project.project_number
+			}))
+
+			console.log('ProjectList updatedProjectsPayload is', updatedProjectsPayload)
+
+			const response = await fetch('http://localhost:4000/update-project-numbers', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`,
+				},
+				body: JSON.stringify(updatedProjectsPayload)
+			});
+
+			if (response.status === 201) {
+				console.log('Project numbers updated successfully');
+			} else {
+				console.error('Error updating project numbers:', response);
+			}
+		} catch (error) {
+			console.error('Error updating project numbers:', error);
+		}
+
+		setOriginalProjects(updatedProjects);
 	};
 
 	const onCancelOrder = () => {

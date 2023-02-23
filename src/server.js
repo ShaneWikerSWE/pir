@@ -1,6 +1,6 @@
 const express = require('express');
-const client = require('./db');
 const cors = require('cors');
+const { Pool } = require('pg');
 
 const bodyParser = require('body-parser');
 const app = express();
@@ -8,6 +8,25 @@ app.use(cors({ origin: 'http://localhost:3000' }));
 
 const port = 4000;
 
+const config = {
+	user: 'postgres',
+	password: '',
+	host: 'localhost',
+	port: 5432,
+	database: 'pir',
+	// add this option to enable multi-statement support
+	multipleStatements: true
+};
+
+const client = new Pool(config);
+
+client.connect((err) => {
+	if (err) {
+		console.error('Error connecting to Postgres database', err.stack);
+	} else {
+		console.log('Connected to Postgres database');
+	}
+});
 app.use(bodyParser.json());
 
 app.post('/project_stages', (req, res) => {
@@ -137,6 +156,26 @@ app.get('/stages/:email', (req, res) => {
 			}
 		}
 	);
+});
+
+app.post('/update-project-numbers', (req, res) => {
+
+	const projectUpdates = req.body;
+	console.log('projectUpdates is', projectUpdates);
+
+	for (let i = 0; i < projectUpdates.length; i++) {
+		const { project_id, project_number } = projectUpdates[i];
+		const query = {
+			text: 'UPDATE projects SET project_number = $1 WHERE project_id = $2',
+			values: [project_number, project_id],
+		};
+		client.query(query, (error, results) => {
+			if (error) {
+				throw error;
+			}
+		});
+	}
+
 });
 
 app.use(function(req, res, next) {
