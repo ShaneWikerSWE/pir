@@ -52,3 +52,43 @@ margin-left: 15vw;
 color: white;
 font-size: 2em;
 }
+
+.project-list-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* add this line to center vertically */
+  text-align: center;
+  font-size: 2em;
+  color: white; /* add this line to make the text white */
+}
+
+.save-button, .cancel-button {
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.save-button {
+  background-color: green;
+  color: white;
+  font-size: 1em;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5vw;
+}
+
+.cancel-button {
+  background-color: red;
+  color: white;
+  font-size: 1em;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 5vw;
+}
+
+.new-order-prompt {
+	color: white;
+	text-align: center;
+	font-size: 2em;
+}

@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
-
+import React, { useContext, useEffect, useState } from "react";
+import EditProjectList from './EditProjectList'
 import { Link } from "react-router-dom";
 import "./projectlist.css";
 import { UserContext } from '../../UserContext'
@@ -9,8 +9,9 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 const ProjectList = () => {
 	const token = useToken();
 	const { stages, setStages, firebaseUser } = useContext(UserContext);
-
+	const [editingProject, setEditingProject] = useState(null);
 	const [projects, setProjects] = useState([]);
+	const [originalProjects, setOriginalProjects] = useState([]);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -22,6 +23,8 @@ const ProjectList = () => {
 			});
 			const stagesData = await response.json();
 			setStages(stagesData);
+			console.log('ProjectList stages is', stages)
+			console.log('ProjectList stagesData is', stagesData)
 		};
 
 		if (firebaseUser) {
@@ -61,6 +64,9 @@ const ProjectList = () => {
 			}, {})
 		);
 		setProjects(projectData);
+		setOriginalProjects(projectData);
+		console.log('ProjectList projects is', projects)
+		console.log('ProjectList projectData is', projectData)
 	}, [stages]);
 
 	const onDragEnd = (result) => {
@@ -72,37 +78,86 @@ const ProjectList = () => {
 		setProjects(newProjects);
 	}
 
-	console.log('ProjectList projects is', projects)
+	const onSaveOrder = () => {
+		console.log('ProjectList onSaveOrder projects is ', projects)
+		const updatedStages = projects.flatMap((project, index) => {
+			console.log('ProjectList onSaveOrder project is ', project)
+			const projectNumber = index + 1;
+			const stages = project.stages.map(stage => {
+				return {
+					...stage,
+					project_number: projectNumber
+				};
+			});
+			console.log('ProjectList stages is ', stages)
+			return stages;
+		});
+		setStages(updatedStages);
+		setOriginalProjects(projects);
+	}
+
+	const onCancelOrder = () => {
+		setProjects(originalProjects);
+	}
 
 	return (
-		<DragDropContext onDragEnd={onDragEnd} className="project-list-wrapper">
-			<Droppable droppableId="droppable">
-				{(provided, snapshot) => (
-					<div
-						{...provided.droppableProps}
-						ref={provided.innerRef}
-					>
-						{projects.map((project, index) => (
-							<Draggable key={project.project_name + index} draggableId={project.project_name + index} index={index}>
-								{(provided, snapshot) => (
-									<div
-										ref={provided.innerRef}
-										{...provided.draggableProps}
-										{...provided.dragHandleProps}
-										className="project-list-item"
-									>
-										<button className="edit-button">Edit</button>
-										<div className="project-name">{project.project_number + '. ' + project.project_name}</div>
-									</div>
-								)}
-							</Draggable>
-						))}
-						{provided.placeholder}
-					</div>
-				)}
-			</Droppable>
-		</DragDropContext >
-	);
-};
+		<>
+			<>
 
-export default ProjectList;
+				{JSON.stringify(projects) !== JSON.stringify(originalProjects) && (
+					<>
+						<div className="new-order-prompt">
+							Would you like to save the new order?
+						</div>
+						<div className="project-list-actions">
+							<button className="save-button" onClick={onSaveOrder}>Save</button>
+							<button className="cancel-button" onClick={onCancelOrder}>Cancel</button>
+						</div>
+					</>
+				)}
+			</>
+			<div className="project-list-wrapper">
+				<DragDropContext onDragEnd={onDragEnd} className="project-list-wrapper">
+					<Droppable droppableId="droppable">
+						{(provided, snapshot) => (
+							<div
+								{...provided.droppableProps}
+								ref={provided.innerRef}
+							>
+								{projects.map((project, index) => (
+									<Draggable key={project.project_name + project.project_number} draggableId={project.project_name + project.project_number} index={index}>
+										{(provided, snapshot) => (
+											<div
+												ref={provided.innerRef}
+												{...provided.draggableProps}
+												{...provided.dragHandleProps}
+												className="project-list-item"
+											>
+												{editingProject === project ? (
+													<div className="editing">
+														<div className="project-name">{project.project_number + '. ' + project.project_name}</div>
+														<EditProjectList project={project} />
+														<button className="cancel-button" onClick={() => setEditingProject(null)}>Cancel</button>
+													</div>
+												) : (
+													<>
+														<div className="project-name">{project.project_number + '. ' + project.project_name}</div>
+														<button className="edit-button" onClick={() => setEditingProject(project)}>Edit</button>
+													</>
+												)}
+											</div>
+										)}
+									</Draggable>
+								))}
+								{provided.placeholder}
+							</div>
+						)}
+					</Droppable>
+				</DragDropContext >
+
+			</div>
+		</>
+	)
+}
+
+export default ProjectList
