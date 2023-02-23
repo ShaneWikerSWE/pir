@@ -31,6 +31,7 @@ body {
   left: 0;
   right: 0;
   font-size: 2rem;
+  z-index: 1000;
 }
 
 .navbar-button {
@@ -77,6 +78,7 @@ body {
   top: 2vh;
   height: 7vw; /* increased height */
   width: 7vw; /* increased width */
+  z-index: 1000;
 }
 
 @media (max-width: 767px) {

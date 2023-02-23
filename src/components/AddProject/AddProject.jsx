@@ -85,6 +85,7 @@ function AddProject() {
 	const clearData = () => {
 		setClientName("");
 		setClientEmail("");
+		setProjectName("");
 		setTempStages([{ stageName: "", days: 0, hours: 0 }]);
 	}
 

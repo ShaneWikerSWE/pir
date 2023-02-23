@@ -23,7 +23,6 @@ const ProjectList = () => {
 			});
 			const stagesData = await response.json();
 			setStages(stagesData);
-			console.log('ProjectList stages is', stages)
 			console.log('ProjectList stagesData is', stagesData)
 		};
 
@@ -48,6 +47,7 @@ const ProjectList = () => {
 					acc[cur.project_number] = {
 						project_number: cur.project_number,
 						project_name: cur.project_name,
+						project_id: cur.project_id,
 						stages: [
 							{
 								stage_id: cur.stage_id,
@@ -65,6 +65,7 @@ const ProjectList = () => {
 		);
 		setProjects(projectData);
 		setOriginalProjects(projectData);
+		console.log('ProjectList stages is', stages)
 		console.log('ProjectList projects is', projects)
 		console.log('ProjectList projectData is', projectData)
 	}, [stages]);
@@ -79,22 +80,45 @@ const ProjectList = () => {
 	}
 
 	const onSaveOrder = () => {
-		console.log('ProjectList onSaveOrder projects is ', projects)
-		const updatedStages = projects.flatMap((project, index) => {
-			console.log('ProjectList onSaveOrder project is ', project)
-			const projectNumber = index + 1;
-			const stages = project.stages.map(stage => {
+		const updatedProjects = projects.map((project, index) => {
+			const updatedStages = project.stages.map((stage, stageIndex) => {
 				return {
 					...stage,
-					project_number: projectNumber
 				};
 			});
-			console.log('ProjectList stages is ', stages)
-			return stages;
+			return {
+				...project,
+				project_number: index + 1,
+				project_name: project.project_name,
+				project_id: project.project_id,
+				stages: updatedStages
+			};
 		});
+		console.log('ProjectList updatedProjects is', updatedProjects)
+
+		setProjects(updatedProjects);
+
+		const updateStages = (updatedProjects) => {
+			if (!updatedProjects) {
+				return [];
+			}
+
+			return updatedProjects.flatMap((project) =>
+				(project.stages || []).map((stage) => ({
+					...stage,
+					project_id: project.project_id,
+					project_name: project.project_name,
+					project_number: project.project_number,
+				}))
+			);
+		};
+		const updatedStages = updateStages(updatedProjects)
+
+		console.log('ProjectList updatedStages is', updatedStages);
+
 		setStages(updatedStages);
-		setOriginalProjects(projects);
-	}
+		// setOriginalProjects(updatedProjects);
+	};
 
 	const onCancelOrder = () => {
 		setProjects(originalProjects);
