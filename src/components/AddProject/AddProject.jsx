@@ -219,9 +219,8 @@ function AddProject() {
 	}
 
 	const handleDeleteStage = (index) => {
-		setStages(stages.filter((_, i) => i !== index));
-		setDays(days.filter((_, i) => i !== index));
-		setHours(hours.filter((_, i) => i !== index));
+		const newTempStages = tempStages.filter((stage, i) => i !== index);
+		setTempStages(newTempStages);
 	};
 
 	document.querySelectorAll('.add-project input[type="number"]').forEach(function(input) {

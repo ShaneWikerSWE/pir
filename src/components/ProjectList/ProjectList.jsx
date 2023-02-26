@@ -188,8 +188,7 @@ const ProjectList = () => {
 												{editingProject === project ? (
 													<div className="editing">
 														<div className="project-name">{project.project_number + '. ' + project.project_name}</div>
-														<EditProjectList project={project} />
-														<button className="cancel-button" onClick={() => setEditingProject(null)}>Cancel</button>
+														<EditProjectList project={project} setEditingProject={setEditingProject} />
 													</div>
 												) : (
 													<>

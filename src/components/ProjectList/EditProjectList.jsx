@@ -1,6 +1,6 @@
 import './EditProjectList'
 
-const EditProjectList = ({ project }) => {
+const EditProjectList = ({ project, setEditingProject }) => {
 	console.log("EditProjectList project is", project);
 
 	const handleEditStageData = (stage_id, field, value) => {
@@ -73,8 +73,11 @@ const EditProjectList = ({ project }) => {
 					))}
 				</tbody>
 			</table>
-			<button className="save-button" onClick={handleSaveProjectData}>
+			<button className="edit-save-button" onClick={handleSaveProjectData}>
 				Save
+			</button>
+			<button className="edit-cancel-button" onClick={() => setEditingProject(null)}>
+				Cancel
 			</button>
 		</div>
 	);

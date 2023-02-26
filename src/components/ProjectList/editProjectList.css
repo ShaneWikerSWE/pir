@@ -49,7 +49,10 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
-.save-button {
+.edit-save-button,
+.edit-cancel-button {
+  display: inline-block;
+  vertical-align: middle;
   margin-top: 10px;
   padding: 5px 10px;
   background-color: #4caf50;
@@ -57,10 +60,6 @@ input[type="checkbox"] {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-}
-
-.save-button:hover {
-  background-color: #2e7d32;
 }
 
 .text-input {
